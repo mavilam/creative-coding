@@ -10,3 +10,4 @@ There will be a directory for each experiment. In each directory will be an inde
 ## Index of experiments
 
 * [Four dots almost collaps](/fourCirclesGoingToCenter/index.html)
+* [Mondrian generator _work in progress_](/mondrianGenerator/index.html)
