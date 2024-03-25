@@ -21,7 +21,7 @@ function setup() {
   
   intersections = calculateIntersections(verticalLines, horizontalLines);
 
-  let filledQuads = 4;
+  let filledQuads = 5;
   for (let i = 0; i < filledQuads; i++) {
     randomQuads.push({color: random(Object.values(colors)), intersection: random(intersections)});
   }
