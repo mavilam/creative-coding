@@ -8,24 +8,39 @@ let verticalLines = [];
 let horizontalLines = [];
 let randomQuads = []
 let intersections = [];
+
 function setup() {
   createCanvas(600, 600);
-  noStroke();
-  let quantity = 4; // random(5, 10)
-  for (let i = 0; i < quantity; i++) {
-    let randomHeight = random(0, height);
-    let randomWidth = random(0, width);
-    verticalLines.push(randomWidth - width / 2); // Adjust due to the translate
-    horizontalLines.push(randomHeight - height / 2);
-  }
-
-  let filledQuads = 4; // random(5, 10)
-
+  background(255);
+  noLoop();
+  
+  let minDistance = 60; 
+  let maxLines = 4;
+  verticalLines = generateLines(width, minDistance, maxLines);
+  horizontalLines = generateLines(height, minDistance, maxLines);
+  
   intersections = calculateIntersections(verticalLines, horizontalLines);
+
+  let filledQuads = 4;
   for (let i = 0; i < filledQuads; i++) {
     randomQuads.push({color: random(Object.values(colors)), intersection: random(intersections)});
   }
 }
+
+function generateLines(dimension, minDistance, maxLines) {
+  let lines = [];
+  for (let i = 0; i < maxLines; i++) {
+    let newLine;
+    let tooClose  = true;
+    while (tooClose) {
+      newLine = random(-dimension / 2, dimension / 2);
+      tooClose = lines.some(l => abs(l - newLine) < minDistance)
+    }
+    lines.push(newLine);
+  }
+  return lines
+}
+
 
 function draw() {
   mondrianGenerator();
@@ -35,16 +50,18 @@ function mondrianGenerator() {
   background(255);
   translate(width / 2, height / 2);
 
-  for (let i = 0; i < randomQuads.length; i++) {
-    fillQuad(randomQuads[i].intersection, intersections, randomQuads[i].color);
-  }
+  randomQuads.forEach(quad => fillQuad(quad.intersection, intersections, quad.color));
 
   displayLines()
-  for (let i = 0; i < randomQuads.length; i++) {
+  //displayIntersetctions() //only for debugging
+}
+
+function displayIntersetctions() {
+  randomQuads.forEach(quad => {
     fill(255, 0, 0); 
     noStroke();
-    ellipse(randomQuads[i].intersection.x, randomQuads[i].intersection.y, 5, 5);
-  }
+    ellipse(quad.intersection.x, quad.intersection.y, 5, 5);
+  })
 }
 
 function fillQuad(firstIntersetction, intersections, color) {
@@ -70,10 +87,10 @@ function displayLines() {
 
 function calculateIntersections(verticalLines, horizontalLines) {
   const intersections = []
-  for (let i = 0; i < verticalLines.length; i++) {
-    for (let j = 0; j < horizontalLines.length; j++) {
-      let x = verticalLines[i];
-      let y = horizontalLines[j];
+  for (vertical of verticalLines) {
+    for (horizontal of horizontalLines) {
+      let x = vertical;
+      let y = horizontal;
       intersections.push(createVector(x, y));
     }
   }
@@ -87,13 +104,13 @@ function findNearestIntersection(vector, intersections, isRelevantIntersection) 
 
   const relevantIntersections = intersections.filter(isRelevantIntersection);
 
-  for (let i = 0; i < relevantIntersections.length; i++) {
-    let distance = dist(vector.x, vector.y, relevantIntersections[i].x, relevantIntersections[i].y);
+  relevantIntersections.forEach(intersection => {
+    let distance = dist(vector.x, vector.y, intersection.x, intersection.y);
     if (distance < prevDistance && distance > 0) {
       prevDistance = distance;
-      nearest = relevantIntersections[i];
+      nearest = intersection;
     }
-  }
+  })
   return nearest;
 }
 
