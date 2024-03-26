@@ -2,56 +2,51 @@ let colors = {
   'yellow': "#FFD700",
   'red': "#FF0000",
   'blue': "#0000FF",
-};
+}
 
-let verticalLines = [];
-let horizontalLines = [];
+let verticalLines = []
+let horizontalLines = []
 let randomQuads = []
-let intersections = [];
+let intersections = []
+
+let minDistance = 80
+let maxLines = 4
+let filledQuads = 10
 
 function setup() {
-  createCanvas(600, 600);
-  background(255);
-  noLoop();
-  
-  let minDistance = 60; 
-  let maxLines = 4;
-  verticalLines = generateLines(width, minDistance, maxLines);
-  horizontalLines = generateLines(height, minDistance, maxLines);
-  
-  intersections = calculateIntersections(verticalLines, horizontalLines);
+  createCanvas(600, 600)
+  background(255)
+  noLoop()
 
-  let filledQuads = 5;
+  verticalLines = generateLines(width, minDistance, maxLines)
+  horizontalLines = generateLines(height, minDistance, maxLines)
+  intersections = calculateIntersections(verticalLines, horizontalLines)
+
   for (let i = 0; i < filledQuads; i++) {
-    randomQuads.push({color: random(Object.values(colors)), intersection: random(intersections)});
+    randomQuads.push({color: random(Object.values(colors)), intersection: random(intersections)})
   }
 }
 
-function generateLines(dimension, minDistance, maxLines) {
+function generateLines(dimension, minDistance, maxLines, isVertical) {
   let lines = [];
-  for (let i = 0; i < maxLines; i++) {
-    let newLine;
-    let tooClose  = true;
-    while (tooClose) {
-      newLine = random(-dimension / 2, dimension / 2);
-      tooClose = lines.some(l => abs(l - newLine) < minDistance)
+  while (lines.length < maxLines) {
+    let newLine = random(-dimension / 2, dimension / 2);
+    if (!lines.some(l => abs(l - newLine) < minDistance)) {
+      lines.push(newLine);
     }
-    lines.push(newLine);
   }
-  return lines
+  return lines;
 }
-
 
 function draw() {
-  mondrianGenerator();
+  mondrianGenerator()
 }
 
 function mondrianGenerator() {
-  background(255);
-  translate(width / 2, height / 2);
+  background(255)
+  translate(width / 2, height / 2)
 
-  randomQuads.forEach(quad => fillQuad(quad.intersection, intersections, quad.color));
-
+  randomQuads.forEach(quad => fillQuad(quad.intersection, intersections, quad.color))
   displayLines()
   //displayIntersetctions() //only for debugging
 }
@@ -59,65 +54,65 @@ function mondrianGenerator() {
 function displayIntersetctions() {
   randomQuads.forEach(quad => {
     fill(255, 0, 0); 
-    noStroke();
-    ellipse(quad.intersection.x, quad.intersection.y, 5, 5);
+    noStroke()
+    ellipse(quad.intersection.x, quad.intersection.y, 5, 5)
   })
 }
 
 function fillQuad(firstIntersetction, intersections, color) {
-  const nearestVerticalIntersection = findNearestVerticalIntersection(firstIntersetction, intersections);
-  const nearestHorizontalIntersection = findNearestHorizontalIntersection(firstIntersetction, intersections);
-  const fourthIntersection = findNearestVerticalIntersection(nearestHorizontalIntersection, intersections);
+  const nearestVerticalIntersection = findNearestVerticalIntersection(firstIntersetction, intersections)
+  const nearestHorizontalIntersection = findNearestHorizontalIntersection(firstIntersetction, intersections)
+  const fourthIntersection = findNearestVerticalIntersection(nearestHorizontalIntersection, intersections)
 
-  noStroke();
-  fill(color);
-  quad(firstIntersetction.x, firstIntersetction.y, nearestHorizontalIntersection.x, nearestHorizontalIntersection.y, fourthIntersection.x, fourthIntersection.y, nearestVerticalIntersection.x, nearestVerticalIntersection.y);
+  noStroke()
+  fill(color)
+  quad(firstIntersetction.x, firstIntersetction.y, nearestHorizontalIntersection.x, nearestHorizontalIntersection.y, fourthIntersection.x, fourthIntersection.y, nearestVerticalIntersection.x, nearestVerticalIntersection.y)
 }
 
 function displayLines() {
-  stroke(0);
-  strokeWeight(7);
+  stroke(0)
+  strokeWeight(7)
   verticalLines.forEach(l => {
-    line(l, -height, l, height);
-  });
+    console.log(`vertical line at ${l}`)
+    line(l, -height, l, height)
+  })
   horizontalLines.forEach(l => {
-    line(-width, l, width, l);
-  });
+    console.log(`horizontal line at ${l}`)
+    line(-width, l, width, l)
+  })
 }
 
 function calculateIntersections(verticalLines, horizontalLines) {
-  const intersections = []
-  for (vertical of verticalLines) {
-    for (horizontal of horizontalLines) {
-      let x = vertical;
-      let y = horizontal;
+  let intersections = [];
+  verticalLines.forEach(x => {
+    horizontalLines.forEach(y => {
       intersections.push(createVector(x, y));
-    }
-  }
-
-  return intersections
+    });
+  });
+  return intersections;
 }
 
-function findNearestIntersection(vector, intersections, isRelevantIntersection) {
-  let prevDistance = Infinity;
-  let nearest = null;
 
-  const relevantIntersections = intersections.filter(isRelevantIntersection);
+function findNearestIntersection(vector, intersections, isRelevantIntersection) {
+  let prevDistance = 2 * width
+  let nearest = null
+
+  const relevantIntersections = intersections.filter(isRelevantIntersection)
 
   relevantIntersections.forEach(intersection => {
-    let distance = dist(vector.x, vector.y, intersection.x, intersection.y);
+    let distance = dist(vector.x, vector.y, intersection.x, intersection.y)
     if (distance < prevDistance && distance > 0) {
-      prevDistance = distance;
-      nearest = intersection;
+      prevDistance = distance
+      nearest = intersection
     }
   })
-  return nearest;
+  return nearest
 }
 
 function findNearestVerticalIntersection(vector, intersections) {
-  return findNearestIntersection(vector, intersections, (i) => i.x === vector.x);
+  return findNearestIntersection(vector, intersections, (i) => i.x === vector.x)
 }
 
 function findNearestHorizontalIntersection(vector, intersections) {
-  return findNearestIntersection(vector, intersections, (i) => i.y === vector.y);
+  return findNearestIntersection(vector, intersections, (i) => i.y === vector.y)
 }
