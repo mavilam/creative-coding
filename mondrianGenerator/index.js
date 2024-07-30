@@ -27,15 +27,15 @@ function setup() {
   }
 }
 
-function generateLines(dimension, minDistance, maxLines, isVertical) {
-  let lines = [];
+function generateLines(dimension, minDistance, maxLines) {
+  let lines = []
   while (lines.length < maxLines) {
-    let newLine = random(-dimension / 2, dimension / 2);
+    let newLine = random(-dimension / 2, dimension / 2)
     if (!lines.some(l => abs(l - newLine) < minDistance)) {
-      lines.push(newLine);
+      lines.push(newLine)
     }
   }
-  return lines;
+  return lines
 }
 
 function draw() {
@@ -53,7 +53,7 @@ function mondrianGenerator() {
 
 function displayIntersetctions() {
   randomQuads.forEach(quad => {
-    fill(255, 0, 0); 
+    fill(255, 0, 0)
     noStroke()
     ellipse(quad.intersection.x, quad.intersection.y, 5, 5)
   })
@@ -83,23 +83,20 @@ function displayLines() {
 }
 
 function calculateIntersections(verticalLines, horizontalLines) {
-  let intersections = [];
+  let intersections = []
   verticalLines.forEach(x => {
     horizontalLines.forEach(y => {
-      intersections.push(createVector(x, y));
-    });
-  });
-  return intersections;
+      intersections.push(createVector(x, y))
+    })
+  })
+  return intersections
 }
 
-
-function findNearestIntersection(vector, intersections, isRelevantIntersection) {
+function findNearestIntersection(vector, intersections) {
   let prevDistance = 2 * width
   let nearest = null
 
-  const relevantIntersections = intersections.filter(isRelevantIntersection)
-
-  relevantIntersections.forEach(intersection => {
+  intersections.forEach(intersection => {
     let distance = dist(vector.x, vector.y, intersection.x, intersection.y)
     if (distance < prevDistance && distance > 0) {
       prevDistance = distance
@@ -110,9 +107,9 @@ function findNearestIntersection(vector, intersections, isRelevantIntersection) 
 }
 
 function findNearestVerticalIntersection(vector, intersections) {
-  return findNearestIntersection(vector, intersections, (i) => i.x === vector.x)
+  return findNearestIntersection(vector, intersections.filter(i => i.x === vector.x))
 }
 
 function findNearestHorizontalIntersection(vector, intersections) {
-  return findNearestIntersection(vector, intersections, (i) => i.y === vector.y)
+  return findNearestIntersection(vector, intersections.filter(i => i.y === vector.y))
 }
